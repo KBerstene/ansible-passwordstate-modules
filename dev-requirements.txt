@@ -3,5 +3,6 @@ requests
 requests_ntlm
 pyyaml
 pytest
+flake8
 mock
 ddt
