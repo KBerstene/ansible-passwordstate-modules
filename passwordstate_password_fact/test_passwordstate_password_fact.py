@@ -16,10 +16,10 @@ class PasswordTest(unittest.TestCase):
         """gather facts by id"""
         value = [
             {
-                "Password": "foo",
-                "Title": "bar",
-                "UserName": "foobar",
                 "PasswordID": 999,
+                "Password": "foo",
+                "UserName": "foobar",
+                "Title": "bar",
                 "HostName": "foobar_host",
                 "Domain": "",
                 "Description": "",
@@ -54,8 +54,8 @@ class PasswordTest(unittest.TestCase):
         expected = {
             "fact_name_prefix_passwordid": 999,
             "fact_name_prefix_password": "foo",
-            "fact_name_prefix_title": "bar",
             "fact_name_prefix_username": "foobar",
+            "fact_name_prefix_title": "bar",
             "fact_name_prefix_hostname": "foobar_host",
             "fact_name_prefix_domain": "",
             "fact_name_prefix_description": "",
@@ -75,6 +75,7 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield10": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
+        self.maxDiff = "None"
         self.assertEqual(expected, facts)
 
     @mock.patch("requests.get", autospec=True)
@@ -82,10 +83,10 @@ class PasswordTest(unittest.TestCase):
         """gather facts by custom field"""
         value = [
             {
+                "PasswordID": 998,
                 "Password": "foo",
-                "Title": "bar",
                 "UserName": "foobar",
-                "PasswordID": 999,
+                "Title": "bar",
                 "HostName": "foobar_host",
                 "Domain": "",
                 "Description": "",
@@ -120,10 +121,10 @@ class PasswordTest(unittest.TestCase):
 
         facts = password.gather_facts("fact_name_prefix")
         expected = {
-            "fact_name_prefix_passwordid": 999,
+            "fact_name_prefix_passwordid": 998,
             "fact_name_prefix_password": "foo",
-            "fact_name_prefix_title": "bar",
             "fact_name_prefix_username": "foobar",
+            "fact_name_prefix_title": "bar",
             "fact_name_prefix_hostname": "foobar_host",
             "fact_name_prefix_domain": "",
             "fact_name_prefix_description": "",
@@ -143,4 +144,5 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield10": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
+        self.maxDiff = "None"
         self.assertEqual(expected, facts)
