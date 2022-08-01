@@ -96,7 +96,7 @@ PasswordState offers an API that uses Windows authentication instead of standard
 
 If running `ansible-playbook` with `-vvv` the output, if using one of the examples from above, could be:
 
-```ansible
+```yml
 ok: [localhost] => {
     "ansible_facts": {
         "myaccount_accounttype": "Active Directory",
