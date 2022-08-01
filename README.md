@@ -91,3 +91,67 @@ PasswordState offers an API that uses Windows authentication instead of standard
     - debug: var=myaccount_username
     - debug: var=myaccount_password
 ```
+
+## Output
+
+If running `ansible-playbook` with `-vvv` the output, if using one of the examples from above, could be:
+
+```ansible
+ok: [localhost] => {
+    "ansible_facts": {
+        "myaccount_accounttype": "Active Directory",
+        "myaccount_accounttypeid": 64,
+        "myaccount_description": "Test Description",
+        "myaccount_domain": "",
+        "myaccount_expirydate": "",
+        "myaccount_genericfield1": "xx",
+        "myaccount_genericfield10": "",
+        "myaccount_genericfield2": "foobar",
+        "myaccount_genericfield3": "",
+        "myaccount_genericfield4": "",
+        "myaccount_genericfield5": "",
+        "myaccount_genericfield6": "",
+        "myaccount_genericfield7": "",
+        "myaccount_genericfield8": "None",
+        "myaccount_genericfield9": "",
+        "myaccount_genericfieldinfo": [
+            {
+                "DisplayName": "GenericField1",
+                "GenericFieldID": "GenericField1",
+                "Value": "xx"
+            },
+            {
+                "DisplayName": "Test Field",
+                "GenericFieldID": "GenericField2",
+                "Value": "foobar"
+            },
+            {
+                "DisplayName": "Test Field 2",
+                "GenericFieldID": "GenericField8",
+                "Value": "None"
+            }
+        ],
+        "myaccount_hostname": "foobar_host",
+        "myaccount_notes": "",
+        "myaccount_password": "FooBar_Password1",
+        "myaccount_passwordid": 999,
+        "myaccount_title": "My password title",
+        "myaccount_url": "https://passwordstate",
+        "myaccount_username": "My password user"
+    },
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "api_key": "xxxxxxxxx",
+            "api_password": null,
+            "api_username": null,
+            "fact_name": "myaccount",
+            "match_field": null,
+            "match_field_id": null,
+            "password_id": "999",
+            "password_list_id": "2",
+            "url": "https://passwordstate"
+        }
+    }
+}
+```
