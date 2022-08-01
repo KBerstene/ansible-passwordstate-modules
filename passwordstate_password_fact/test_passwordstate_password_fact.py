@@ -19,9 +19,26 @@ class PasswordTest(unittest.TestCase):
                 "Password": "foo",
                 "Title": "bar",
                 "UserName": "foobar",
-                "GenericField1": "123",
                 "PasswordID": 999,
                 "HostName": "foobar_host",
+                "Domain": "",
+                "Description": "",
+                "Notes": "",
+                "URL": "http://passwordstate",
+                "AccountType": "",
+                "AccountTypeID": "",
+                "GenericField1": "123",
+                "GenericField2": "",
+                "GenericField3": "",
+                "GenericField4": "",
+                "GenericField5": "",
+                "GenericField6": "",
+                "GenericField7": "",
+                "GenericField8": "",
+                "GenericField9": "",
+                "GenericField10": "",
+                "GenericFieldInfo": "",
+                "ExpiryDate": "2051-05-12",
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
@@ -35,8 +52,12 @@ class PasswordTest(unittest.TestCase):
 
         facts = password.gather_facts("fact_name_prefix")
         expected = {
+            "fact_name_prefix_passwordid": 999,
             "fact_name_prefix_password": "foo",
             "fact_name_prefix_username": "foobar",
+            "fact_name_prefix_hostname": "foobar_host",
+            "fact_name_prefix_url": "http://passwordstate",
+            "fact_name_prefix_expirydate": "2051-05-12",
         }
         self.assertEqual(expected, facts)
 
@@ -48,9 +69,26 @@ class PasswordTest(unittest.TestCase):
                 "Password": "foo",
                 "Title": "bar",
                 "UserName": "foobar",
-                "GenericField1": "123",
                 "PasswordID": 999,
                 "HostName": "foobar_host",
+                "Domain": "",
+                "Description": "",
+                "Notes": "",
+                "URL": "http://passwordstate",
+                "AccountType": "",
+                "AccountTypeID": "",
+                "GenericField1": "123",
+                "GenericField2": "",
+                "GenericField3": "",
+                "GenericField4": "",
+                "GenericField5": "",
+                "GenericField6": "",
+                "GenericField7": "",
+                "GenericField8": "",
+                "GenericField9": "",
+                "GenericField10": "",
+                "GenericFieldInfo": "",
+                "ExpiryDate": "2051-05-12",
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
@@ -66,8 +104,12 @@ class PasswordTest(unittest.TestCase):
 
         facts = password.gather_facts("fact_name_prefix")
         expected = {
+            "fact_name_prefix_passwordid": 999,
             "fact_name_prefix_password": "foo",
             "fact_name_prefix_username": "foobar",
             "fact_name_prefix_hostname": "foobar_host",
+            "fact_name_prefix_url": "http://passwordstate",
+            "fact_name_prefix_expirydate": "2051-05-12",
+            "fact_name_prefix_genericfield1": "123",
         }
         self.assertEqual(expected, facts)
