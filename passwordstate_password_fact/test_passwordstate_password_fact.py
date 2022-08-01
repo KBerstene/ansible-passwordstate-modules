@@ -73,6 +73,7 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield8": "",
             "fact_name_prefix_genericfield9": "",
             "fact_name_prefix_genericfield10": "",
+            "fact_name_prefix_genericfieldinfo": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
         self.maxDiff = None
@@ -142,6 +143,7 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield8": "",
             "fact_name_prefix_genericfield9": "",
             "fact_name_prefix_genericfield10": "",
+            "fact_name_prefix_genericfieldinfo": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
         self.maxDiff = None
