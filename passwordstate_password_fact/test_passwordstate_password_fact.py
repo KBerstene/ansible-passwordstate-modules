@@ -75,7 +75,7 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield10": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
-        self.maxDiff = "None"
+        self.maxDiff = None
         self.assertEqual(expected, facts)
 
     @mock.patch("requests.get", autospec=True)
@@ -144,5 +144,5 @@ class PasswordTest(unittest.TestCase):
             "fact_name_prefix_genericfield10": "",
             "fact_name_prefix_expirydate": "2051-05-12",
         }
-        self.maxDiff = "None"
+        self.maxDiff = None
         self.assertEqual(expected, facts)
