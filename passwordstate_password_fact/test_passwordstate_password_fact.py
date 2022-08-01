@@ -21,6 +21,7 @@ class PasswordTest(unittest.TestCase):
                 "UserName": "foobar",
                 "GenericField1": "123",
                 "PasswordID": 999,
+                "HostName": "foobar_host",
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
@@ -49,6 +50,7 @@ class PasswordTest(unittest.TestCase):
                 "UserName": "foobar",
                 "GenericField1": "123",
                 "PasswordID": 999,
+                "HostName": "foobar_host",
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
@@ -66,5 +68,6 @@ class PasswordTest(unittest.TestCase):
         expected = {
             "fact_name_prefix_password": "foo",
             "fact_name_prefix_username": "foobar",
+            "fact_name_prefix_hostname": "foobar_host",
         }
         self.assertEqual(expected, facts)
