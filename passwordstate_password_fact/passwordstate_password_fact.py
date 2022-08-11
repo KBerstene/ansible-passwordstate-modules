@@ -24,6 +24,9 @@ class Password(object):
         elif matcher["field"] != None and matcher["field_id"] != None:
             self.match_field = matcher["field"]
             self.match_field_id = matcher["field_id"]
+            if matcher["field2"] != None and matcher["field2_id"] != None:
+                self.match_field2 = matcher["field2"]
+                self.match_field2_id = matcher["field2_id"]
         else:
             raise PasswordIdException()
 
@@ -147,7 +150,9 @@ class Password(object):
         """the method to uniquely identify the password"""
         if hasattr(self, "password_id"):
             return "password_id"
-        elif hasattr(self, "match_field") and hasattr(self, "match_field_id"):
+        elif (hasattr(self, "match_field") and hasattr(self, "match_field_id")) or (
+            hasattr(self, "match_field2") and hasattr(self, "match_field2_id")
+        ):
             return "match_field"
         raise PasswordIdException()
 
@@ -218,9 +223,26 @@ class PasswordState(object):
             "passwords/" + password.password_list_id + "?QueryAll&ExcludePassword=true"
         )
         passwords = self._request(uri, "GET")
-        passwords = PasswordState._filter_passwords(
-            passwords, password.match_field, password.match_field_id
-        )
+        if (
+            hasattr(password, "match_field") and hasattr(password, "match_field_id")
+        ) and (
+            hasattr(password, "match_field2") and hasattr(password, "match_field2_id")
+        ):
+            passwords = PasswordState._filter_passwords_fields(
+                passwords,
+                password.match_field,
+                password.match_field_id,
+                password.match_field2,
+                password.match_field2_id,
+            )
+        elif hasattr(password, "match_field") and hasattr(password, "match_field_id"):
+            passwords = PasswordState._filter_passwords_field(
+                passwords, password.match_field, password.match_field_id
+            )
+        elif hasattr(password, "match_field2") and hasattr(password, "match_field2_id"):
+            passwords = PasswordState._filter_passwords_field2(
+                passwords, password.match_field2, password.match_field2_id
+            )
         if len(passwords) == 0:
             self.module.fail_json(msg="Password not found")
             return None
@@ -266,9 +288,23 @@ class PasswordState(object):
             return None
 
     @staticmethod
-    def _filter_passwords(passwords, field, value):
+    def _filter_passwords_fields(passwords, field, value, field2, value2):
+        """filter out passwords which does not match the specific field value and field2 value"""
+        return [
+            obj
+            for i, obj in enumerate(passwords)
+            if obj[field] == value and obj[field2] == value2
+        ]
+
+    @staticmethod
+    def _filter_passwords_field(passwords, field, value):
         """filter out passwords which does not match the specific field value"""
         return [obj for i, obj in enumerate(passwords) if obj[field] == value]
+
+    @staticmethod
+    def _filter_passwords_field2(passwords, field2, value2):
+        """filter out passwords which does not match the specific field2 value"""
+        return [obj for i, obj in enumerate(passwords) if obj[field2] == value2]
 
 
 def main():
@@ -283,6 +319,8 @@ def main():
             "password_list_id": {"required": False},
             "match_field": {"required": False},
             "match_field_id": {"required": False},
+            "match_field2": {"required": False},
+            "match_field2_id": {"required": False},
             "password_id": {"required": False},
         },
         supports_check_mode=False,
@@ -299,13 +337,21 @@ def main():
     password_list_id = module.params["password_list_id"]
     match_field = module.params["match_field"]
     match_field_id = module.params["match_field_id"]
+    match_field2 = module.params["match_field2"]
+    match_field2_id = module.params["match_field2_id"]
     password_id = module.params["password_id"]
 
     api = PasswordState(module, url, api_key, api_username, api_password)
     password = Password(
         api,
         password_list_id,
-        {"id": password_id, "field": match_field, "field_id": match_field_id},
+        {
+            "id": password_id,
+            "field": match_field,
+            "field_id": match_field_id,
+            "field2": match_field2,
+            "field2_id": match_field2_id,
+        },
     )
 
     facts = password.gather_facts(fact_name)
