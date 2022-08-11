@@ -81,7 +81,7 @@ class PasswordTest(unittest.TestCase):
 
     @mock.patch("requests.get", autospec=True)
     def test_gather_facts_field(self, mock_get):
-        """gather facts by custom field"""
+        """gather facts by custom field with field_id"""
         value = [
             {
                 "PasswordID": 998,
@@ -117,7 +117,15 @@ class PasswordTest(unittest.TestCase):
 
         api = PasswordState(module, url, api_key)
         password = Password(
-            api, "123", {"id": None, "field": "GenericField1", "field_id": "123"}
+            api,
+            "123",
+            {
+                "id": None,
+                "field": "GenericField1",
+                "field_id": "123",
+                "field2": None,
+                "field2_id": None,
+            },
         )
 
         facts = password.gather_facts("fact_name_prefix")
