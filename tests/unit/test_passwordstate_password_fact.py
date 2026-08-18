@@ -2,8 +2,8 @@
 
 import unittest
 
-from passwordstate_password_fact import Password
-from passwordstate_password_fact import PasswordState
+from plugins.modules.passwordstate_password_fact import Password
+from plugins.modules.passwordstate_password_fact import PasswordState
 from ddt import ddt, data, unpack
 import mock
 
