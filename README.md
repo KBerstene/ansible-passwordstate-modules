@@ -1,16 +1,22 @@
 [![Build Status](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/build.yml/badge.svg)](https://github.com/KBerstene/ansible-passwordstate-modules/actions/workflows/build.yml)
 
-# Ansible PasswordState Modules
+# Ansible Passwordstate Modules
 
-This repository contains two ansible modules for setting and getting passwordstate passwords.
+This repository contains an Ansible collection for setting and getting Passwordstate passwords.
 
 Original codebase credit to the [BoxUK modules](https://github.com/boxuk/ansible-boxuk-modules-passwordstate), with additional major contributions by [eizedev](https://github.com/eizedev/ansible-passwordstate-modules).
 
 All Python prerequisites can be installed using `python3 -m pip install -r dev-requirements.txt`.
 
-## passwordstate_password
+This collection is unaffiliated with ClickStudios and Passwordstate, and therefore it is not going to be published through Ansible Galaxy at this time.  It can be installed as a local collection using the following `ansible-galaxy` command:
 
-The `passwordstate_password` module enables adding and updating of passwords inside PasswordState:
+```bash
+ansible-galaxy collection install git+https://github.com/KBerstene/ansible-passwordstate-modules.git
+```
+
+## passwordstate.password module
+
+The `passwordstate.password` module enables adding and updating of passwords inside Passwordstate:
 
 ```yml
 ---
@@ -19,7 +25,7 @@ The `passwordstate_password` module enables adding and updating of passwords ins
   connection: local
   tasks:
     - name: push password to passwordstate
-      passwordstate_password:
+      local.passwordstate.password:
         url: 'https://passwordstate.internal.corp.net'
         api_key: 'xxxxxxxxx'
         password_list_id: 'xxxx'
@@ -30,9 +36,9 @@ The `passwordstate_password` module enables adding and updating of passwords ins
         password: 'my secure password'
 ```
 
-## passwordstate_password_fact
+## local.passwordstate.password_fact
 
-The `passwordstate_password_fact` module enables fetching of passwords stored in PasswordState:
+The `local.passwordstate.password_fact` module enables fetching of passwords stored in Passwordstate:
 
 ### Fetch by custom match field/id
 
@@ -43,7 +49,7 @@ The `passwordstate_password_fact` module enables fetching of passwords stored in
   connection: local
   tasks:
     - name: get password from passwordstate
-      passwordstate_password_fact:
+      local.passwordstate.password_fact:
         url: 'https://passwordstate.internal.corp.net'
         api_key: 'xxxxxxxxx'
         password_list_id: 'xxxx'
@@ -62,7 +68,7 @@ The `passwordstate_password_fact` module enables fetching of passwords stored in
   connection: local
   tasks:
     - name: get password from passwordstate
-      passwordstate_password_fact:
+      local.passwordstate.password_fact:
         url: 'https://passwordstate.internal.corp.net'
         api_key: 'xxxxxxxxx'
         password_id: 'xx'
@@ -73,7 +79,7 @@ The `passwordstate_password_fact` module enables fetching of passwords stored in
 
 ## Windows Authentication API
 
-PasswordState offers an API that uses Windows authentication instead of standard API keys.  The Windows API can be used by simply replacing the `api_key` option with the `api_username` and `api_password` options, which can be prompted for at the beginning of a playbook or otherwise stored and passed:
+Passwordstate offers an API that uses Windows authentication instead of standard API keys.  The Windows API can be used by simply replacing the `api_key` option with the `api_username` and `api_password` options, which can be prompted for at the beginning of a playbook or otherwise stored and passed:
 
 ```yml
 ---
@@ -82,7 +88,7 @@ PasswordState offers an API that uses Windows authentication instead of standard
   connection: local
   tasks:
     - name: get password from passwordstate
-    passwordstate_password_fact:
+    local.passwordstate.password_fact:
         url: 'https://passwordstate.internal.corp.net'
         api_username: '{{ passwordstate_api_username }}'
         api_password: '{{ passwordstate_api_password }}'

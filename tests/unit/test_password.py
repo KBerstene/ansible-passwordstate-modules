@@ -2,9 +2,9 @@
 
 import unittest
 
-from plugins.modules.passwordstate_password import Password
-from plugins.modules.passwordstate_password import PasswordState
-from plugins.modules.passwordstate_password import PasswordIdException
+from plugins.modules.password import Password
+from plugins.modules.password import PasswordState
+from plugins.modules.password import PasswordIdException
 from ddt import ddt, data, unpack
 import mock
 
@@ -65,7 +65,7 @@ class PasswordTest(unittest.TestCase):
             password = Password(api, list_id, matcher)
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_passwordid_1(self):
         """test logic of password id type"""
@@ -74,7 +74,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("password_id", password.type)
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_passwordid_2(self):
         """test logic of password id type"""
@@ -83,7 +83,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("password_id", password.type)
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_field(self):
         """test logic of password id type"""
@@ -93,7 +93,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("match_field", password.type)
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_field(self):
         """test logic of password id type"""
@@ -102,7 +102,7 @@ class PasswordTest(unittest.TestCase):
             password.type
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_password(self):
         """test password getter"""
@@ -116,7 +116,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("securepassword", password.password)
 
     @mock.patch(
-        "plugins.modules.passwordstate_password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_password(self):
         """test password getter"""
