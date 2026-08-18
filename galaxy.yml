@@ -1,5 +1,5 @@
 ---
-namespace: "ktb"
+namespace: "local"
 name: "passwordstate"
 version: "1.0.0"
 readme: "README.md"
