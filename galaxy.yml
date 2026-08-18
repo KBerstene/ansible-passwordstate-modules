@@ -1,0 +1,10 @@
+---
+namespace: "ktb"
+name: "passwordstate"
+version: "1.0.0"
+readme: "README.md"
+authors:
+  - "Kevin T. Berstene"
+license:
+  - "MIT"
+repository: "https://github.com/KBerstene/ansible-passwordstate-modules"
