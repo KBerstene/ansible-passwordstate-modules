@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
-""" PasswordState Ansible Module """
+""" PasswordState Ansible Action Plugin """
 
-from ansible.module_utils.basic import *
+from ansible.errors import AnsibleActionFail
+from ansible.plugins.action import ActionBase
 
 import requests
 from json.decoder import JSONDecodeError
@@ -188,8 +189,7 @@ class Password(object):
 class PasswordState(object):
     """PasswordState"""
 
-    def __init__(self, module, url, api_key, api_username=None, api_password=None):
-        self.module = module
+    def __init__(self, url, api_key, api_username=None, api_password=None):
         self.url = url
         self.api_key = api_key
         self.api_username = api_username
@@ -206,11 +206,9 @@ class PasswordState(object):
         """get the password by the password id"""
         passwords = self._request("passwords/" + str(password_id), "GET")
         if len(passwords) == 0:
-            self.module.fail_json(msg="Password not found")
-            return None
+            raise AnsibleActionFail("Password not found")
         if len(passwords) > 1:
-            self.module.fail_json(msg="Multiple matching passwords found")
-            return None
+            raise AnsibleActionFail("Multiple matching passwords found")
         return passwords[0]
 
     def _get_password_by_field(self, password):
@@ -244,11 +242,9 @@ class PasswordState(object):
                 passwords, password.match_field2, password.match_field2_id
             )
         if len(passwords) == 0:
-            self.module.fail_json(msg="Password not found")
-            return None
+            raise AnsibleActionFail("Password not found")
         elif len(passwords) > 1:
-            self.module.fail_json(msg="Multiple matching passwords found")
-            return None
+            raise AnsibleActionFail("Multiple matching passwords found")
 
         return passwords[0]["PasswordID"]
 
@@ -274,18 +270,15 @@ class PasswordState(object):
                     full_uri, auth=winauth, params=params
                 )
         except requests.exceptions.RequestException as inst:
-            self.module.fail_json(msg="Failed: %s" % str(inst))
-            return None
+            raise AnsibleActionFail("Failed: %s" % str(inst))
 
         if response.status_code > 204:
-            self.module.fail_json(msg="Failed: %s" % str(response.json()))
-            return None
+            raise AnsibleActionFail("Failed: %s" % str(response.json()))
 
         try:
             return response.json()
         except JSONDecodeError as inst:
-            self.module.fail_json(msg="Failed: %s" % str(inst))
-            return None
+            raise AnsibleActionFail("Failed: %s" % str(inst))
 
     @staticmethod
     def _filter_passwords_fields(passwords, field, value, field2, value2):
@@ -307,57 +300,56 @@ class PasswordState(object):
         return [obj for i, obj in enumerate(passwords) if obj[field2] == value2]
 
 
-def main():
-    """main"""
-    module = AnsibleModule(
-        argument_spec={
-            "url": {"required": True},
-            "fact_name": {"required": True},
-            "api_key": {"required": False},
-            "api_username": {"required": False},
-            "api_password": {"required": False},
-            "password_list_id": {"required": False},
-            "match_field": {"required": False},
-            "match_field_id": {"required": False},
-            "match_field2": {"required": False},
-            "match_field2_id": {"required": False},
-            "password_id": {"required": False},
-        },
-        supports_check_mode=False,
-        mutually_exclusive=[("api_key", "api_username")],
-        required_one_of=[("api_key", "api_username")],
-        required_together=[("api_username", "api_password")],
-    )
+class ActionModule(ActionBase):
+    def run(self, tmp=None, task_vars=None):
+        result = super(ActionModule, self).run(tmp, task_vars)
 
-    url = module.params["url"]
-    api_key = module.params["api_key"]
-    api_username = module.params["api_username"]
-    api_password = module.params["api_password"]
-    fact_name = module.params["fact_name"]
-    password_list_id = module.params["password_list_id"]
-    match_field = module.params["match_field"]
-    match_field_id = module.params["match_field_id"]
-    match_field2 = module.params["match_field2"]
-    match_field2_id = module.params["match_field2_id"]
-    password_id = module.params["password_id"]
+        validation_result, new_module_args = self.validate_argument_spec(
+            argument_spec={
+                "url": {"required": True},
+                "fact_name": {"required": True},
+                "api_key": {"required": False},
+                "api_username": {"required": False},
+                "api_password": {"required": False},
+                "password_list_id": {"required": False},
+                "match_field": {"required": False},
+                "match_field_id": {"required": False},
+                "match_field2": {"required": False},
+                "match_field2_id": {"required": False},
+                "password_id": {"required": False},
+            },
+            mutually_exclusive=[("api_key", "api_username")],
+            required_one_of=[("api_key", "api_username")],
+            required_together=[("api_username", "api_password")],
+        )
 
-    api = PasswordState(module, url, api_key, api_username, api_password)
-    password = Password(
-        api,
-        password_list_id,
-        {
-            "id": password_id,
-            "field": match_field,
-            "field_id": match_field_id,
-            "field2": match_field2,
-            "field2_id": match_field2_id,
-        },
-    )
+        url = new_module_args["url"]
+        api_key = new_module_args["api_key"]
+        api_username = new_module_args["api_username"]
+        api_password = new_module_args["api_password"]
+        fact_name = new_module_args["fact_name"]
+        password_list_id = new_module_args["password_list_id"]
+        match_field = new_module_args["match_field"]
+        match_field_id = new_module_args["match_field_id"]
+        match_field2 = new_module_args["match_field2"]
+        match_field2_id = new_module_args["match_field2_id"]
+        password_id = new_module_args["password_id"]
 
-    facts = password.gather_facts(fact_name)
-    facts_result = {"changed": False, "ansible_facts": facts}
-    module.exit_json(**facts_result)
+        api = PasswordState(url, api_key, api_username, api_password)
+        password = Password(
+            api,
+            password_list_id,
+            {
+                "id": password_id,
+                "field": match_field,
+                "field_id": match_field_id,
+                "field2": match_field2,
+                "field2_id": match_field2_id,
+            },
+        )
 
+        facts = password.gather_facts(fact_name)
 
-if __name__ == "__main__":
-    main()
+        result["changed"] = False
+        result["ansible_facts"] = facts
+        return result

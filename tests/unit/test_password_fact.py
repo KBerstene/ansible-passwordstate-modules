@@ -2,8 +2,8 @@
 
 import unittest
 
-from plugins.modules.password_fact import Password
-from plugins.modules.password_fact import PasswordState
+from plugins.action.password_fact import Password
+from plugins.action.password_fact import PasswordState
 from ddt import ddt, data, unpack
 import mock
 
@@ -43,11 +43,10 @@ class PasswordTest(unittest.TestCase):
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(api, "123", {"id": "999", "field": None, "field_id": None})
 
         facts = password.gather_facts("fact_name_prefix")
@@ -111,11 +110,10 @@ class PasswordTest(unittest.TestCase):
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(
             api,
             "123",
