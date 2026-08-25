@@ -3,7 +3,8 @@
 """ PasswordState Ansible Action Plugin """
 
 from ansible.errors import AnsibleActionFail
-from ansible.plugins.action import ActionBase
+from ansible.module_utils.parsing.convert_bool import boolean
+from ansible.plugins.action import ActionBase, VariableLayer
 
 import requests
 from json.decoder import JSONDecodeError
@@ -317,6 +318,7 @@ class ActionModule(ActionBase):
                 "match_field2": {"required": False},
                 "match_field2_id": {"required": False},
                 "password_id": {"required": False},
+                "cacheable": {"required": False},
             },
             mutually_exclusive=[("api_key", "api_username")],
             required_one_of=[("api_key", "api_username")],
@@ -334,6 +336,7 @@ class ActionModule(ActionBase):
         match_field2 = new_module_args["match_field2"]
         match_field2_id = new_module_args["match_field2_id"]
         password_id = new_module_args["password_id"]
+        cacheable = boolean(new_module_args.pop("cacheable", False))
 
         api = PasswordState(url, api_key, api_username, api_password)
         password = Password(
@@ -350,6 +353,14 @@ class ActionModule(ActionBase):
 
         facts = password.gather_facts(fact_name)
 
+        if cacheable:
+            self.register_host_variables(facts, VariableLayer.CACHEABLE_FACT)
+        else:
+            self.register_host_variables({}, VariableLayer.CACHEABLE_FACT)
+
+        self.register_host_variables(facts, VariableLayer.EPHEMERAL_FACT)
+
+        # just as _facts actions, we don't set changed=true as we are not modifying the actual host
         result["changed"] = False
         result["ansible_facts"] = facts
         return result
