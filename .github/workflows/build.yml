@@ -14,20 +14,19 @@ jobs:
     environment: main
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
-      # Use python action with python 3.9
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      # Use Python action with Python 3.13
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.13
 
-      # Install python dependencies
+      # Install Python dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install flake8 pytest
-          if [ -f dev-requirements.txt ]; then python -m pip install -r dev-requirements.txt; fi
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r dev-requirements.txt
 
       # Run linting tests
       - name: Lint with flake8
@@ -39,4 +38,4 @@ jobs:
 
       # Run python tests
       - name: Run python tests
-        run: python -m pytest
+        run: python3 -m pytest
