@@ -14,6 +14,10 @@ This collection is unaffiliated with ClickStudios and Passwordstate, and therefo
 ansible-galaxy collection install git+https://github.com/KBerstene/ansible-passwordstate-modules.git
 ```
 
+## Ansible Version Requirements
+
+As of commit 67f112b5, which changes the modules into action plugins and by default will not 
+
 ## passwordstate.password module
 
 The `passwordstate.password` module enables adding and updating of passwords inside Passwordstate:
@@ -46,7 +50,7 @@ The `local.passwordstate.password_fact` module enables fetching of passwords sto
 ---
 - name: Passwordstate
   hosts: localhost
-  connection: local
+
   tasks:
     - name: get password from passwordstate
       local.passwordstate.password_fact:
@@ -56,7 +60,9 @@ The `local.passwordstate.password_fact` module enables fetching of passwords sto
         match_field: 'GenericField1'
         match_field_id: 'xx'
         fact_name: 'myaccount'
-    - debug: var=myaccount_password
+
+    - debug:
+        var: myaccount_password
 ```
 
 ### Fetch by password id
@@ -65,7 +71,7 @@ The `local.passwordstate.password_fact` module enables fetching of passwords sto
 ---
 - name: Passwordstate
   hosts: localhost
-  connection: local
+
   tasks:
     - name: get password from passwordstate
       local.passwordstate.password_fact:
@@ -73,8 +79,34 @@ The `local.passwordstate.password_fact` module enables fetching of passwords sto
         api_key: 'xxxxxxxxx'
         password_id: 'xx'
         fact_name: 'myaccount'
-    - debug: var=myaccount_username
-    - debug: var=myaccount_password
+
+    - debug:
+        var: myaccount_username
+
+    - debug:
+        var: myaccount_password
+```
+
+### Allow returned info to be cached
+
+Returned data is normally set as ephemeral variables which are not processed by Ansible cache plugins.  To enable data to be written to the cache, set the `cacheable` module argument to `true`:
+
+```yml
+---
+- name: Passwordstate
+  hosts: localhost
+
+  tasks:
+    - name: get password from passwordstate
+      local.passwordstate.password_fact:
+        url: 'https://passwordstate.internal.corp.net'
+        api_key: 'xxxxxxxxx'
+        password_id: 'xx'
+        fact_name: 'myaccount'
+        cacheable: true
+
+    - debug:
+        msg: "{{ ansible_facts['myaccount_username'] }}"
 ```
 
 ## Windows Authentication API
@@ -85,7 +117,7 @@ Passwordstate offers an API that uses Windows authentication instead of standard
 ---
 - name: Passwordstate
   hosts: localhost
-  connection: local
+
   tasks:
     - name: get password from passwordstate
     local.passwordstate.password_fact:
@@ -94,8 +126,12 @@ Passwordstate offers an API that uses Windows authentication instead of standard
         api_password: '{{ passwordstate_api_password }}'
         password_id: 'xx'
         fact_name: 'myaccount'
-    - debug: var=myaccount_username
-    - debug: var=myaccount_password
+
+    - debug:
+        var: myaccount_username
+
+    - debug:
+        var: myaccount_password
 ```
 
 ## Output
