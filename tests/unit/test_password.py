@@ -2,9 +2,11 @@
 
 import unittest
 
-from plugins.modules.password import Password
-from plugins.modules.password import PasswordState
-from plugins.modules.password import PasswordIdException
+from ansible.errors import AnsibleActionFail
+
+from plugins.action.password import Password
+from plugins.action.password import PasswordState
+from plugins.action.password import PasswordIdException
 from ddt import ddt, data, unpack
 import mock
 
@@ -65,7 +67,7 @@ class PasswordTest(unittest.TestCase):
             password = Password(api, list_id, matcher)
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_passwordid_1(self):
         """test logic of password id type"""
@@ -74,7 +76,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("password_id", password.type)
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_passwordid_2(self):
         """test logic of password id type"""
@@ -83,7 +85,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("password_id", password.type)
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_field(self):
         """test logic of password id type"""
@@ -93,7 +95,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("match_field", password.type)
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_type_field(self):
         """test logic of password id type"""
@@ -102,7 +104,7 @@ class PasswordTest(unittest.TestCase):
             password.type
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_password(self):
         """test password getter"""
@@ -116,7 +118,7 @@ class PasswordTest(unittest.TestCase):
         self.assertEqual("securepassword", password.password)
 
     @mock.patch(
-        "plugins.modules.password.Password.__init__", mock.Mock(return_value=None)
+        "plugins.action.password.Password.__init__", mock.Mock(return_value=None)
     )
     def test_password(self):
         """test password getter"""
@@ -135,12 +137,10 @@ class PasswordStateTest(unittest.TestCase):
 
     def test_init(self):
         """test constructor"""
-        module = mock.Mock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
-        passwordstate = PasswordState(module, url, api_key)
+        passwordstate = PasswordState(url, api_key)
 
-        self.assertEqual(passwordstate.module, module)
         self.assertEqual(passwordstate.url, url)
         self.assertEqual(passwordstate.api_key, api_key)
 
@@ -188,18 +188,14 @@ class PasswordStateTest(unittest.TestCase):
 
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
-        module.exit_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(api, "123", {"id": "999", "field": None, "field_id": None})
 
         fields = {"password": "foo"}
-        password.update(fields)
-
-        module.exit_json.assert_called_with(changed=False)
+        self.assertFalse(password.update(fields))
 
     @mock.patch("requests.get", autospec=True)
     def test_update_passwordmatch_match_field(self, mock_get):
@@ -215,22 +211,19 @@ class PasswordStateTest(unittest.TestCase):
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
-        module.exit_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(
             api, "123", {"id": None, "field": "GenericField1", "field_id": "123"}
         )
 
         fields = {"password": "foo"}
-        password.update(fields)
-
-        module.exit_json.assert_called_with(changed=False)
+        self.assertFalse(password.update(fields))
 
     @mock.patch("requests.get", autospec=True)
+    @mock.patch("requests.put", autospec=True)
     @data(
         {"password": "newpassword"},
         {"Title": "newtitle"},
@@ -238,7 +231,7 @@ class PasswordStateTest(unittest.TestCase):
         {"password": "foo", "Title": "newtitle"},
         {"Title": "bar", "UserName": "newuser"},
     )
-    def test_update_passwordmatch_nomatch_id(self, fields, mock_get):
+    def test_update_passwordmatch_nomatch_id(self, fields, mock_get, mock_put):
         """password that doesnt need updating"""
         value = [
             {
@@ -250,20 +243,18 @@ class PasswordStateTest(unittest.TestCase):
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
+        mock_put.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
-        module.exit_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(api, "123", {"id": "999", "field": None, "field_id": None})
 
-        password.update(fields)
-
-        module.exit_json.assert_called_with(changed=True)
+        self.assertTrue(password.update(fields))
 
     @mock.patch("requests.get", autospec=True)
+    @mock.patch("requests.put", autospec=True)
     @data(
         {"password": "newpassword"},
         {"Title": "newtitle"},
@@ -271,7 +262,7 @@ class PasswordStateTest(unittest.TestCase):
         {"password": "foo", "Title": "newtitle"},
         {"Title": "bar", "UserName": "newuser"},
     )
-    def test_update_passwordmatch_nomatch_field(self, fields, mock_get):
+    def test_update_passwordmatch_nomatch_field(self, fields, mock_get, mock_put):
         """password that doesnt need updating"""
         value = [
             {
@@ -283,59 +274,51 @@ class PasswordStateTest(unittest.TestCase):
             }
         ]
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: value)
+        mock_put.return_value = mock.Mock(status_code=200, json=lambda: value)
 
-        module = mock.Mock()
-        module.exit_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(
             api, "123", {"id": None, "field": "GenericField1", "field_id": "123"}
         )
 
-        password.update(fields)
+        self.assertTrue(password.update(fields))
 
-        module.exit_json.assert_called_with(changed=True)
-
-    @mock.patch("requests.get", autospec=True)
+    @mock.patch("requests.post", autospec=True)
     def test_update_newpassword_notitle(self, mock_get):
         """password that doesnt need updating"""
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: [])
 
-        module = mock.Mock()
-        module.fail_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(
             api, "123", {"id": None, "field": "GenericField1", "field_id": "123"}
         )
 
         fields = {"password": "foo"}
-        password.update(fields)
 
-        module.fail_json.assert_called_with(
-            msg="Title is required when creating passwords"
-        )
+        with self.assertRaises(AnsibleActionFail):
+            password.update(fields)
 
     @mock.patch("requests.get", autospec=True)
-    def test_update_newpassword_withtitle(self, mock_get):
+    @mock.patch("requests.post", autospec=True)
+    def test_update_newpassword_withtitle(self, mock_get, mock_post):
         """password that doesnt need updating"""
         mock_get.return_value = mock.Mock(status_code=200, json=lambda: [])
+        mock_post.return_value = mock.Mock(status_code=200, json=lambda: [])
 
-        module = mock.Mock()
-        module.exit_json = mock.MagicMock()
         url = "http://passwordstate"
         api_key = "abc123xyz"
 
-        api = PasswordState(module, url, api_key)
+        api = PasswordState(url, api_key)
         password = Password(
             api, "123", {"id": None, "field": "GenericField1", "field_id": "123"}
         )
 
         fields = {"password": "foo", "Title": "mytitle"}
-        password.update(fields)
 
-        module.exit_json.assert_called_with(changed=True)
+        self.assertTrue(password.update(fields))
